@@ -1,0 +1,15 @@
+{# https://stackoverflow.com/a/55305881/2256700 #}
+
+{%- extends 'lab/index.html.j2' -%}
+
+{% block input %}
+    {%- if 'hide-input' in cell.metadata.get('tags', []) -%}
+        <details style="margin: 0.4em;">
+            <summary style="opacity: var(--jp-cell-prompt-not-active-opacity);
+    color: var(--jp-cell-prompt-not-active-font-color);"">Show code</summary>
+            {{ super() }}
+        </details>
+    {%- else -%}
+        {{ super() }}
+    {%- endif -%}
+{% endblock input %}
