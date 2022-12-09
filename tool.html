@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sRGB-Y-section in xyY Space</title>
+</head>
+
+<body style="margin: 0 8em; ">
+    <h1>sRGB-Y-section in xyY Space</h1>
+    <div style="display: flex; width: 600px;">
+        <span>Y:</span>
+        <input style="flex-grow: 1;" type="range" id="Yinput" min="1" max="99">
+        <span id="Yspan"></span>
+    </div>
+    <svg width="600px" height="600px" viewBox="0 0 1 1" stroke-width="0.005">
+        <path id="locusPath" fill="none" stroke="black" d=""></path>
+        <path id="sRGBslicePath" fill="none" stroke="blue" d=""></path>
+    </svg>
+    <script>
+        const spectralLocusPoints = new Float32Array((new Uint8Array(Array.from(atob(`
+            EMYzPux3rTuxsTM+BzmtO3ZdMz5tPaw7xxMzPh4Tqzt62zI+GZSrO+t9Mj4MDqY7NUQyPrKlojsiLzI+3zOjO34EMj4tF6E7qtIx
+            Pob/oTu6oTE+DGefO0VzMT6V0pw7aCwxPgd4nDtWzjA+zlqdO11uMD5gX5079f4vPvovoDuoUC8+M8OqO2JjLj6Arb07iEMtPoCJ
+            2TuqxSs+5CIAPND1KT6oCRo8pMInPpaHOjyZ+CQ+iv1hPBBqIT7F84k8KhQdPk5gqDyb5Rc+otPOPKTSET6PlgA9NsEKPkpYIz25
+            swE+I9VaPWks7T17sZY9J3zSPTmq0j1GWLI9uscTPrG1jD1jik0+1O1MPfdJjD4TEwI9eim6PnVFhTxgCO0+KPHNO0ElED8933w7
+            faInP225LTzzwDs/LWzfPEzHSj86t1U96z1TP5wLqD3xhlU/GM3pPU2CUz+4SxY+BXZPPzAeNj75q0o/r6xUPtljRT/okXI+TZ8/
+            P6wTiD5LbTk/MMKWPlDnMj/xaKU+RSAsP1wNtD4BKiU/Uq/CPp8UHj/hRdE+evAWPz3D3z78yQ8/sBLuPqSvCD+BHPw+hLEBP/Dh
+            BD9PxvU+IXcLP5er6D7RuhE/UzbcPgucFz8le9A+EOwcP4PhxT5bqyE/6G28PpvyJT8J6rM+c5spPzuorD5ruiw/4HKmPjxaLz+z
+            NaE+iYgxP/fbnD7rWjM/8T2ZPlThND9mNZY+jjM2PymTkz42Vjc/0U6RPiBMOD/GY48+mRg5Py3MjT4xuDk/MY+MPvk4Oj8Ojos+
+            D6E6P+O9ij6d8Do/xx6KPq0oOz+nrok++Fg7Pw9OiT5fgTs/Qf2IPuelOz8ytIg++ck7Pw9siD6G6js/9CqIPsT9Oz94BIg+sgk8
+            P5zshz7zETw/GtyHPqUUPD+31oc+pRQ8P7bWhz6lFDw/ttaHPqUUPD+31oc+pRQ8P7bWhz6lFDw/t9aHPqUUPD+21oc+pBQ8P7fW
+            hz6kFDw/uNaHPqUUPD+21oc+pRQ8P7bWhz6lFDw/ttaHPqUUPD+21oc+pRQ8P7bWhz6lFDw/ttaHPqQUPD+41oc+oxQ8P7nWhz6l
+            FDw/t9aHPqUUPD+31oc+pRQ8P7fWhz6lFDw/ttaHPqUUPD+31oc+pRQ8P7XWhz6lFDw/ttaHPqUUPD+11oc+pRQ8P7bWhz6lFDw/
+            t9aHPqUUPD+31oc+pRQ8P7bWhz6kFDw/t9aHPqYUPD+01oc+pBQ8P7fWhz6oFDw/sNaHPqQUPD+41oc+
+        `)).map(c => c.charCodeAt(0)))).buffer);
+        const spectralLocusSVGPath = (() => {
+            const points = spectralLocusPoints
+            const output = ['M', points[0], 1 - points[1]];
+            for (let i = 1; i < points.length / 2; i++) {
+                output.push('L');
+                output.push(points[i * 2 + 0]);
+                output.push(1 - points[i * 2 + 1]);
+            }
+            output.push('Z');
+            return output.join(' ');
+        })();
+        document.getElementById('locusPath').setAttribute('d', spectralLocusSVGPath)
+
+        let p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y;
+
+        function calculateSlice(Y) {
+            if (Y >= 0.715199999999999 && Y <= 0.999999999999999) {
+                p0x = (1.93979303857008 * Y + 0.0404469426152398 * Math.max(0, 13.8504155124654 * Y - 12.8504155124654) - 1.02973998118532) / (3.03057384760113 * Y + 0.984392568203199 * Math.max(0, 13.8504155124654 * Y - 12.8504155124654) - 0.975466415804328);
+                p0y = Y / (3.03057384760113 * Y + 0.984392568203199 * Math.max(0, 13.8504155124654 * Y - 12.8504155124654) - 0.975466415804328);
+            }
+            else if (Y <= 0.927800000000001 && (Y > 0.999999999999999 || Y < 0.715199999999999)) {
+                p0x = (0.5 * Y + 0.3061 * Math.max(0, 4.70366886171213 * Y - 3.36406396989651)) / (1.66666666666667 * Y + 0.289966666666667 * Math.max(0, 4.70366886171213 * Y - 3.36406396989651));
+                p0y = Y / (1.66666666666667 * Y + 0.289966666666667 * Math.max(0, 4.70366886171213 * Y - 3.36406396989651));
+            }
+            else {
+                return false;
+            }
+
+            if (Y >= 0.2126 && Y <= 0.999999999999998) {
+                p1x = (2.5 * Y - 1.4304 * Math.min(1, 1.39821029082774 * Y - 0.297259507829978) - 0.1191) / (16.6648199445983 * Y - 10.7266792243767 * Math.min(1, 1.39821029082774 * Y - 0.297259507829978) - 2.89864072022161);
+                p1y = Y / (16.6648199445983 * Y - 10.7266792243767 * Math.min(1, 1.39821029082774 * Y - 0.297259507829978) - 2.89864072022161);
+            }
+            else if (Y <= 0.927799999999999 && (Y > 0.999999999999998 || Y < 0.2126)) {
+                p1x = (1.93979303857008 * Y - 1.02973998118532 * Math.max(0, 1.39821029082774 * Y - 0.297259507829978)) / (3.03057384760113 * Y - 0.975466415804328 * Math.max(0, 1.39821029082774 * Y - 0.297259507829978));
+                p1y = Y / (3.03057384760113 * Y - 0.975466415804328 * Math.max(0, 1.39821029082774 * Y - 0.297259507829978));
+            }
+            else {
+                return false;
+            }
+
+            if (Y <= 0.2848) {
+                p2x = (2.5 * Y - 0.1191 * Math.max(0, 4.70366886171214 * Y - 0.339604891815616)) / (16.6648199445983 * Y - 2.89864072022161 * Math.max(0, 4.70366886171214 * Y - 0.339604891815616));
+                p2y = Y / (16.6648199445983 * Y - 2.89864072022161 * Math.max(0, 4.70366886171214 * Y - 0.339604891815616));
+            }
+            else if (Y <= 1.0) {
+                p2x = (0.5 * Y + 0.3061 * Math.min(1, 4.70366886171213 * Y - 0.339604891815616) + 0.1444) / (1.66666666666667 * Y + 0.289966666666667 * Math.min(1, 4.70366886171213 * Y - 0.339604891815616) + 1.08286666666667);
+                p2y = Y / (1.66666666666667 * Y + 0.289966666666667 * Math.min(1, 4.70366886171213 * Y - 0.339604891815616) + 1.08286666666667);
+            }
+            else {
+                return false;
+            }
+
+            if (Y >= 0.0722000000000001 && Y <= 1.0) {
+                const m = Math.max(0, 4.70366886171213 * Y - 3.70366886171213)
+                p3x = (0.5 * Y + 0.3061 * m + 0.1444) / (1.66666666666667 * Y + 0.289966666666667 * m + 1.08286666666667);
+                p3y = Y / (1.66666666666667 * Y + 0.289966666666667 * m + 1.08286666666667);
+            }
+            else if (Y <= 0.787399999999999 && (Y > 1.0 || Y < 0.0722000000000001)) {
+                const m = Math.max(0, 1.39821029082774 * Y - 0.100950782997763)
+                p3x = (2.5 * Y - 1.4304 * m) / (16.6648199445983 * Y - 10.7266792243767 * m);
+                p3y = Y / (16.6648199445983 * Y - 10.7266792243767 * m);
+            }
+            else {
+                return false;
+            }
+
+
+            return true;
+        }
+        const Yinput = document.getElementById('Yinput');
+        const sRGBslicePath = document.getElementById('sRGBslicePath');
+        const Yspan = document.getElementById('Yspan')
+        function setSliceOnInput() {
+            Y = parseInt(Yinput.value) / 100;
+            Yspan.innerText = Y.toFixed(2)
+            if (calculateSlice(Y)) {
+                sRGBslicePath.visibility = 'visible';
+                sRGBslicePath.setAttribute('d', [
+                    'M', p0x, 1 - p0y,
+                    'L', p1x, 1 - p1y,
+                    'L', p2x, 1 - p2y,
+                    'L', p3x, 1 - p3y,
+                    'Z'
+                ].join(' '))
+            } else {
+                sRGBslicePath.visibility = 'hidden';
+            }
+        }
+        Yinput.addEventListener('input', setSliceOnInput);
+        setSliceOnInput()
+    </script>
+</body>
+
+</html>
