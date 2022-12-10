@@ -40,6 +40,7 @@ jobs:
           mkdir pages_output
           jupyter nbconvert --to html --template hidecode --output index working_it_out.ipynb 
           mv index.html pages_output
+          mv tool.html pages_output
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
