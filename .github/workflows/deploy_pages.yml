@@ -37,12 +37,14 @@ jobs:
           pip install nbconvert
       - name: Build Notebook into html
         run: |
+          mkdir pages_output
           jupyter nbconvert --to html --template hidecode --output index working_it_out.ipynb 
+          mv index.html pages_output
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
-          path: index.html
+          path: ./pages_output
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
