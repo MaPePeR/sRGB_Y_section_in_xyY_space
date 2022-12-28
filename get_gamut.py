@@ -31,27 +31,29 @@ def reduce_point_count(points, desired_count):
 
 def max_distance_interval(points, a, b):
     if a + 1 >= b:
-        #Empty interval cannot be split again, so set distance to -1
-        return (a, -1)
+        return (1, 0, a, b)
     distances = distance_to_segment(points[a + 1:b, 0], points[a + 1:b, 1], points[a, 0], points[a, 1], points[b, 0], points[b, 1])
     maxindex = np.argmax(distances)
-    return (a + maxindex + 1, distances[maxindex])
+    return (-1 * distances[maxindex], a + maxindex + 1, a, b)
+
+import heapq
 
 def RDP(points, max_count):
     if len(points) <= max_count:
         return points
-    intervals = {(0, len(points) - 1): max_distance_interval(points, 0, len(points) - 1)}
+
+    intervals = []
+    nextinterval = max_distance_interval(points, 0, len(points) - 1)
     point_count = 2
     while point_count < max_count:
-        (interval, (maxindex, d)) = max(intervals.items(), key=lambda t: t[1][1])
-        a, b = interval
-        if d <= 0:
+        (d, maxindex, a, b) = nextinterval
+        if d >= 0:
             raise "Cannot find line to split? Should not happen"
-        del intervals[interval]
-        intervals[(a, maxindex)] = max_distance_interval(points, a, maxindex)
-        intervals[(maxindex, b)] = max_distance_interval(points, maxindex, b)
+        heapq.heappush(intervals, max_distance_interval(points, a, maxindex))
+        nextinterval = heapq.heappushpop(intervals, max_distance_interval(points, maxindex, b))
         point_count += 1
-    indizes = set(a for a, b in intervals.keys())
+    intervals.append(nextinterval)
+    indizes = set(a for d, maxindex, a, b in intervals)
     indizes.add(len(points) - 1)
     return points[sorted(indizes)]
 
